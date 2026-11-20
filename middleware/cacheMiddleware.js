@@ -38,19 +38,19 @@ function cacheMiddleware(req, res, next) {
 
 
 function saveResponseToCache(req, res, next) {
-
     const originalJson = res.json.bind(res)
 
     res.json = function (data) {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+            const key = req.originalUrl
 
-        const key = req.originalUrl
+            cache[key] = {
+                data,
+                createdAt: Date.now()
+            }
 
-        cache[key] = {
-            data: data,
-            createdAt: Date.now()
+            console.log('Stored in cache:', key)
         }
-
-        console.log('Stored in cache:', key)
 
         return originalJson(data)
     }
